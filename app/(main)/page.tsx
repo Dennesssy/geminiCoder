@@ -131,16 +131,63 @@ export default function Home() {
     }
   }, [loading, generatedCode]);
 
+  // Animate sine/cosine waves on canvas
+  useEffect(() => {
+    const canvas = document.getElementById("waveCanvas") as HTMLCanvasElement | null;
+    if (!canvas) return;
+
+    const ctx = canvas.getContext("2d");
+    if (!ctx) return;
+
+    let width = canvas.width = window.innerWidth;
+    let height = canvas.height = window.innerHeight;
+
+    window.addEventListener("resize", () => {
+      width = canvas.width = window.innerWidth;
+      height = canvas.height = window.innerHeight;
+    });
+
+    let t = 0;
+
+    function animate() {
+      ctx!.clearRect(0, 0, width, height);
+
+      // Draw multiple sine/cosine waves
+      for (let i = 0; i < 3; i++) {
+        ctx!.beginPath();
+        ctx!.lineWidth = 1.5;
+        ctx!.strokeStyle = `hsla(${(i * 60 + t * 10) % 360}, 80%, 70%, 0.3)`;
+
+        for (let x = 0; x < width; x++) {
+          const y = height / 2 + Math.sin(x * 0.01 + t + i) * 30 + Math.cos(x * 0.02 + t + i * 2) * 15;
+          if (x === 0) ctx!.moveTo(x, y);
+          else ctx!.lineTo(x, y);
+        }
+
+        ctx!.stroke();
+      }
+
+      t += 0.02;
+      requestAnimationFrame(animate);
+    }
+
+    animate();
+  }, []);
+
   return (
-    <main className="mt-12 flex w-full flex-1 flex-col items-center px-4 text-center sm:mt-1 dark:text-gray-100"> {/* Added dark:text-gray-100 */}
+    <main className="relative mt-12 flex w-full flex-1 flex-col items-center px-4 text-center sm:mt-1 dark:text-gray-100 overflow-hidden"> {/* Added relative and overflow-hidden */}
+      {/* Animated sine wave background */}
+      <canvas id="waveCanvas" className="pointer-events-none absolute inset-0 -z-10"></canvas>
+
       {/* Replaced "Powered by" link with styled "Stay cloudy" div */}
-      <div className="floating-cloud mb-6 inline-block rounded-full bg-gradient-to-br from-blue-200 via-blue-100 to-blue-200 px-6 py-3 text-sm font-medium text-blue-800 shadow-lg dark:from-slate-600 dark:via-slate-700 dark:to-slate-600 dark:text-blue-200">
-        Stay cloudy
+      <div className="floating-cloud mt-8 mb-6 inline-block rounded-full bg-gradient-to-br from-blue-200 via-blue-100 to-blue-200 px-6 py-3 text-sm font-medium text-blue-800 shadow-lg dark:from-slate-600 dark:via-slate-700 dark:to-slate-600 dark:text-blue-200">
+        <span>Stay cloudy</span>
       </div>
       {/* Updated heading with animated gradient and "Daily" */}
       <h1 className="my-6 max-w-3xl text-4xl font-bold text-gray-800 sm:text-6xl dark:text-gray-100">
         Turn your <span className="animated-gradient-text">idea</span>
-        <br /> into an <span className="animated-gradient-text">app</span> Daily
+        <br /> into an <span className="animated-gradient-text">app</span>
+        <br /> Daily
       </h1>
 
       <form className="w-full max-w-xl" onSubmit={createApp}>
