@@ -24,10 +24,28 @@
   100% { background-position: 0% 50%; }
 }
 
-/* Floating Cloud Animation */
+/* Floating Cloud Animation & Styling */
 .floating-cloud {
+  @apply relative inline-block rounded-full bg-gradient-to-br from-blue-200 via-blue-100 to-blue-200 px-6 py-3 text-sm font-medium text-blue-800 shadow-lg dark:from-slate-600 dark:via-slate-700 dark:to-slate-600 dark:text-blue-200;
   animation: float 6s ease-in-out infinite;
 }
+
+/* Add cloud shapes using pseudo-elements */
+.floating-cloud::before,
+.floating-cloud::after {
+  content: '';
+  @apply absolute rounded-full bg-gradient-to-br from-blue-200 via-blue-100 to-blue-200 dark:from-slate-600 dark:via-slate-700 dark:to-slate-600;
+  z-index: -1; /* Place behind the text */
+}
+
+.floating-cloud::before {
+  @apply -left-3 -top-2 h-8 w-8; /* Adjust size and position */
+}
+
+.floating-cloud::after {
+  @apply -right-4 -top-1 h-10 w-10; /* Adjust size and position */
+}
+
 
 @keyframes float {
   0% {

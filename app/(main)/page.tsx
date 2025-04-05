@@ -20,21 +20,22 @@ export default function Home() {
     "initial" | "creating" | "created" | "updating" | "updated"
   >("initial");
   let [prompt, setPrompt] = useState("");
+  // Updated model labels and removed 1.5-pro
   let models = [
     {
-      label: "dailypnp-2.0-flash-exp",
+      label: "Daily Alpha Code", // Renamed
       value: "dailypnp-2.0-flash-exp",
     },
+    // { // Removed 1.5-pro
+    //   label: "dailypnp-1.5-pro",
+    //   value: "dailypnp-1.5-pro",
+    // },
     {
-      label: "dailypnp-1.5-pro",
-      value: "dailypnp-1.5-pro",
-    },
-    {
-      label: "dailypnp-1.5-flash",
+      label: "Daily Beta Coder", // Renamed
       value: "dailypnp-1.5-flash",
     }
   ];
-  let [model, setModel] = useState(models[0].value);
+  let [model, setModel] = useState(models[0].value); // Default to first model
   let [shadcn, setShadcn] = useState(false);
   let [modification, setModification] = useState("");
   let [generatedCode, setGeneratedCode] = useState("");

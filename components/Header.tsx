@@ -13,14 +13,7 @@ export default function Header() {
           <span className="text-blue-600 dark:text-blue-400">Daily PNP</span>Coder
         </h1>
       </Link>
-      <a
-        href="https://github.com/osanseviero/geminicoder"
-        target="_blank"
-        className="ml-auto hidden items-center gap-3 rounded-2xl bg-white px-6 py-2 sm:flex"
-      >
-        <GithubIcon className="h-4 w-4" />
-        <span>GitHub Repo</span>
-      </a>
+      {/* Removed GitHub link */}
     </header>
   );
 }
