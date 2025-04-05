@@ -4,11 +4,11 @@ import CodeViewer from "@/components/code-viewer";
 import { useScrollTo } from "@/hooks/use-scroll-to";
 import { CheckIcon } from "@heroicons/react/16/solid";
 import { ArrowLongRightIcon, ChevronDownIcon } from "@heroicons/react/20/solid";
-import { ArrowUpOnSquareIcon } from "@heroicons/react/24/outline";
+import { ArrowDownTrayIcon } from "@heroicons/react/24/outline"; // Changed import for export icon
 import * as Select from "@radix-ui/react-select";
 import * as Switch from "@radix-ui/react-switch";
 import { AnimatePresence, motion } from "framer-motion";
-import { FormEvent, useEffect, useState } from "react";
+import { FormEvent, useEffect, useState, useCallback } from "react"; // Added useCallback
 import LoadingDots from "../../components/loading-dots";
 
 function removeCodeFormatting(code: string): string {
@@ -22,16 +22,16 @@ export default function Home() {
   let [prompt, setPrompt] = useState("");
   let models = [
     {
-      label: "gemini-2.0-flash-exp",
-      value: "gemini-2.0-flash-exp",
+      label: "dailypnp-2.0-flash-exp",
+      value: "dailypnp-2.0-flash-exp",
     },
     {
-      label: "gemini-1.5-pro",
-      value: "gemini-1.5-pro",
+      label: "dailypnp-1.5-pro",
+      value: "dailypnp-1.5-pro",
     },
     {
-      label: "gemini-1.5-flash",
-      value: "gemini-1.5-flash",
+      label: "dailypnp-1.5-flash",
+      value: "dailypnp-1.5-flash",
     }
   ];
   let [model, setModel] = useState(models[0].value);
@@ -57,8 +57,9 @@ export default function Home() {
     }
 
     setStatus("creating");
-    setGeneratedCode("");
+    setGeneratedCode(""); // Clear previous code
 
+    // Restore fetch call to the original backend API route
     let res = await fetch("/api/generateCode", {
       method: "POST",
       headers: {
@@ -66,17 +67,25 @@ export default function Home() {
       },
       body: JSON.stringify({
         model,
-        shadcn,
+        shadcn, // This parameter might be used by the backend route
         messages: [{ role: "user", content: prompt }],
       }),
     });
 
     if (!res.ok) {
-      throw new Error(res.statusText);
+      // Consider adding user-facing error handling here
+      setStatus("initial"); // Reset status on error
+      setGeneratedCode(`// Error: ${res.statusText}`);
+      console.error(res.statusText);
+      return; // Stop execution on error
     }
 
     if (!res.body) {
-      throw new Error("No response body");
+      // Consider adding user-facing error handling here
+      setStatus("initial"); // Reset status on error
+      setGeneratedCode(`// Error: No response body`);
+      console.error("No response body");
+      return; // Stop execution
     }
 
     const reader = res.body.getReader();
@@ -94,8 +103,24 @@ export default function Home() {
 
     setMessages([{ role: "user", content: prompt }]);
     setInitialAppConfig({ model, shadcn });
-    setStatus("created");
+    setStatus("created"); // Set status after successful generation
   }
+
+  // Function to handle exporting the generated code
+  const handleExport = useCallback(() => {
+    if (!generatedCode || generatedCode.startsWith("//")) return; // Don't export placeholder/empty
+
+    const blob = new Blob([generatedCode], { type: 'text/plain;charset=utf-8' });
+    const url = URL.createObjectURL(blob);
+    const link = document.createElement('a');
+    link.href = url;
+    link.download = 'generated-code.tsx'; // Or derive filename from prompt?
+    document.body.appendChild(link);
+    link.click();
+    document.body.removeChild(link);
+    URL.revokeObjectURL(url);
+  }, [generatedCode]);
+
 
   useEffect(() => {
     let el = document.querySelector(".cm-scroller");
@@ -106,26 +131,24 @@ export default function Home() {
   }, [loading, generatedCode]);
 
   return (
-    <main className="mt-12 flex w-full flex-1 flex-col items-center px-4 text-center sm:mt-1">
-      <a
-        className="mb-4 inline-flex h-7 shrink-0 items-center gap-[9px] rounded-[50px] border-[0.5px] border-solid border-[#E6E6E6] bg-[rgba(234,238,255,0.65)] bg-gray-100 px-7 py-5 shadow-[0px_1px_1px_0px_rgba(0,0,0,0.25)]"
-        href="https://ai.google.dev/gemini-api/docs"
-        target="_blank"
-      >
-        <span className="text-center">
-          Powered by <span className="font-medium">Gemini API</span>
-        </span>
-      </a>
-      <h1 className="my-6 max-w-3xl text-4xl font-bold text-gray-800 sm:text-6xl">
-        Turn your <span className="text-blue-600">idea</span>
-        <br /> into an <span className="text-blue-600">app</span>
+    <main className="mt-12 flex w-full flex-1 flex-col items-center px-4 text-center sm:mt-1 dark:text-gray-100"> {/* Added dark:text-gray-100 */}
+      {/* Replaced "Powered by" link with styled "Stay cloudy" div */}
+      <div className="floating-cloud mb-6 inline-block rounded-full bg-gradient-to-br from-blue-200 via-blue-100 to-blue-200 px-6 py-3 text-sm font-medium text-blue-800 shadow-lg dark:from-slate-600 dark:via-slate-700 dark:to-slate-600 dark:text-blue-200">
+        Stay cloudy
+      </div>
+      {/* Updated heading with animated gradient and "Daily" */}
+      <h1 className="my-6 max-w-3xl text-4xl font-bold text-gray-800 sm:text-6xl dark:text-gray-100">
+        Turn your <span className="animated-gradient-text">idea</span>
+        <br /> into an <span className="animated-gradient-text">app</span> Daily
       </h1>
 
       <form className="w-full max-w-xl" onSubmit={createApp}>
         <fieldset disabled={loading} className="disabled:opacity-75">
           <div className="relative mt-5">
-            <div className="absolute -inset-2 rounded-[32px] bg-gray-300/50" />
-            <div className="relative flex rounded-3xl bg-white shadow-sm">
+            {/* Glassmorphism background element */}
+            <div className="absolute -inset-2 rounded-[32px] bg-gray-300/50 dark:bg-slate-700/40 dark:backdrop-blur-md" />
+            {/* Form container with dark mode styles */}
+            <div className="relative flex rounded-3xl bg-white shadow-sm dark:bg-slate-800/80 dark:backdrop-blur-lg dark:border dark:border-slate-700/50">
               <div className="relative flex flex-grow items-stretch focus-within:z-10">
                 <textarea
                   rows={3}
@@ -133,7 +156,7 @@ export default function Home() {
                   value={prompt}
                   onChange={(e) => setPrompt(e.target.value)}
                   name="prompt"
-                  className="w-full resize-none rounded-l-3xl bg-transparent px-6 py-5 text-lg focus-visible:outline focus-visible:outline-2 focus-visible:outline-blue-500"
+                  className="w-full resize-none rounded-l-3xl bg-transparent px-6 py-5 text-lg ring-inset placeholder:text-gray-400 focus:ring-2 focus:ring-inset focus:ring-blue-600 dark:text-gray-100 dark:placeholder-gray-400 dark:focus:ring-blue-500" // Refined focus ring, removed focus-visible:outline
                   placeholder="Build me a calculator app..."
                 />
               </div>
@@ -152,30 +175,32 @@ export default function Home() {
           </div>
           <div className="mt-6 flex flex-col justify-center gap-4 sm:flex-row sm:items-center sm:gap-8">
             <div className="flex items-center justify-between gap-3 sm:justify-center">
-              <p className="text-gray-500 sm:text-xs">Model:</p>
+              <p className="text-gray-500 sm:text-xs dark:text-gray-400">Model:</p> {/* Dark mode text */}
               <Select.Root
                 name="model"
                 disabled={loading}
                 value={model}
                 onValueChange={(value) => setModel(value)}
               >
-                <Select.Trigger className="group flex w-60 max-w-xs items-center rounded-2xl border-[6px] border-gray-300 bg-white px-4 py-2 text-sm focus-visible:outline focus-visible:outline-2 focus-visible:outline-blue-500">
-                  <Select.Value />
+                {/* Refined Select Trigger styles */}
+                <Select.Trigger className="group flex w-60 max-w-xs items-center rounded-lg border border-gray-300 bg-white px-4 py-2 text-sm shadow-sm transition-colors focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2 dark:border-slate-600 dark:bg-slate-700 dark:text-gray-200 dark:focus:ring-blue-600 dark:focus:ring-offset-slate-900">
+                  <Select.Value placeholder="Select a model..." />
                   <Select.Icon className="ml-auto">
-                    <ChevronDownIcon className="size-6 text-gray-300 group-focus-visible:text-gray-500 group-enabled:group-hover:text-gray-500" />
+                    <ChevronDownIcon className="size-5 text-gray-400 group-hover:text-gray-500 dark:text-gray-500 dark:group-hover:text-gray-400" /> {/* Adjusted size and colors */}
                   </Select.Icon>
                 </Select.Trigger>
                 <Select.Portal>
-                  <Select.Content className="overflow-hidden rounded-md bg-white shadow-lg">
-                    <Select.Viewport className="p-2">
+                  {/* Refined Select Content styles */}
+                  <Select.Content className="overflow-hidden rounded-md border border-gray-200 bg-white shadow-lg dark:border-slate-700 dark:bg-slate-800">
+                    <Select.Viewport className="p-1"> {/* Adjusted padding */}
                       {models.map((model) => (
                         <Select.Item
                           key={model.value}
                           value={model.value}
-                          className="flex cursor-pointer items-center rounded-md px-3 py-2 text-sm data-[highlighted]:bg-gray-100 data-[highlighted]:outline-none"
+                          className="flex cursor-pointer items-center rounded-md px-3 py-2 text-sm data-[highlighted]:bg-gray-100 data-[highlighted]:outline-none dark:data-[highlighted]:bg-slate-700" // Dark mode highlight
                         >
                           <Select.ItemText asChild>
-                            <span className="inline-flex items-center gap-2 text-gray-500">
+                            <span className="inline-flex items-center gap-2 text-gray-500 dark:text-gray-300"> {/* Dark mode text */}
                               <div className="size-2 rounded-full bg-green-500" />
                               {model.label}
                             </span>
@@ -194,24 +219,25 @@ export default function Home() {
             </div>
 
             <div className="flex h-full items-center justify-between gap-3 sm:justify-center">
-              <label className="text-gray-500 sm:text-xs" htmlFor="shadcn">
+              <label className="text-gray-500 sm:text-xs dark:text-gray-400" htmlFor="shadcn"> {/* Dark mode text */}
                 shadcn/ui:
               </label>
+              {/* Refined Switch styles */}
               <Switch.Root
-                className="group flex w-20 max-w-xs items-center rounded-2xl border-[6px] border-gray-300 bg-white p-1.5 text-sm shadow-inner transition focus-visible:outline focus-visible:outline-2 focus-visible:outline-blue-500 data-[state=checked]:bg-blue-500"
+                className="peer inline-flex h-6 w-11 shrink-0 cursor-pointer items-center rounded-full border-2 border-transparent bg-gray-200 transition-colors focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2 data-[state=checked]:bg-blue-600 dark:bg-slate-700 dark:focus:ring-blue-600 dark:focus:ring-offset-slate-900 dark:data-[state=checked]:bg-blue-500"
                 id="shadcn"
                 name="shadcn"
                 checked={shadcn}
                 onCheckedChange={(value) => setShadcn(value)}
               >
-                <Switch.Thumb className="size-7 rounded-lg bg-gray-200 shadow-[0_1px_2px] shadow-gray-400 transition data-[state=checked]:translate-x-7 data-[state=checked]:bg-white data-[state=checked]:shadow-gray-600" />
+                <Switch.Thumb className="pointer-events-none block h-5 w-5 translate-x-0 rounded-full bg-white shadow-lg ring-0 transition-transform data-[state=checked]:translate-x-5 dark:bg-slate-300" />
               </Switch.Root>
             </div>
           </div>
         </fieldset>
       </form>
 
-      <hr className="border-1 mb-20 h-px bg-gray-700 dark:bg-gray-700" />
+      <hr className="border-1 mb-20 h-px bg-gray-700 dark:border-gray-600" /> {/* Adjusted dark border */}
 
       {status !== "initial" && (
         <motion.div
@@ -227,8 +253,19 @@ export default function Home() {
           ref={ref}
         >
           <div className="relative mt-8 w-full overflow-hidden">
-            <div className="isolate">
+            <div className="isolate relative"> {/* Added relative positioning */}
               <CodeViewer code={generatedCode} showEditor />
+              {/* Export Button - Updated condition */}
+              {(status === 'created' || status === 'updated') && generatedCode && !generatedCode.startsWith("//") && (
+                <button
+                  onClick={handleExport}
+                  className="absolute top-2 right-2 z-20 inline-flex items-center gap-1 rounded bg-slate-600/70 px-2 py-1 text-xs text-white backdrop-blur-sm transition hover:bg-slate-500/80"
+                  title="Export Code Snippet"
+                >
+                  <ArrowDownTrayIcon className="size-4" />
+                  Export
+                </button>
+              )}
             </div>
 
             <AnimatePresence>

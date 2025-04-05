@@ -11,7 +11,7 @@ export default function Footer() {
             className="font-semibold text-blue-600 underline-offset-4 transition hover:text-gray-700 hover:underline"
             target="_blank"
           >
-            Gemini API
+            Daily PNP API
           </a>{" "}
           and{" "}
           <a
