@@ -2,6 +2,71 @@
 @tailwind components;
 @tailwind utilities;
 
+@layer base {
+  body {
+    @apply bg-white text-gray-900; /* Default light mode styles */
+  }
+  .dark body {
+    @apply bg-gray-900 text-gray-100; /* Dark mode styles */
+  }
+}
+
+/* Animated Gradient Text Styles */
+.animated-gradient-text {
+  @apply bg-gradient-to-r from-pink-500 via-red-500 to-yellow-500 bg-clip-text text-transparent;
+  background-size: 200% auto;
+  animation: gradient-animation 3s linear infinite;
+}
+
+@keyframes gradient-animation {
+  0% { background-position: 0% 50%; }
+  50% { background-position: 100% 50%; }
+  100% { background-position: 0% 50%; }
+}
+
+/* Floating Cloud Animation & Styling */
+.floating-cloud {
+  @apply relative inline-block rounded-full bg-gradient-to-br from-blue-200 via-blue-100 to-blue-200 px-6 py-3 text-sm font-medium text-blue-800 shadow-lg dark:from-slate-600 dark:via-slate-700 dark:to-slate-600 dark:text-blue-200;
+  animation: float 6s ease-in-out infinite;
+}
+
+/* Add cloud shapes using pseudo-elements - Refined */
+.floating-cloud::before,
+.floating-cloud::after {
+  content: '';
+  @apply absolute block bg-gradient-to-br from-blue-200 via-blue-100 to-blue-200 dark:from-slate-600 dark:via-slate-700 dark:to-slate-600;
+  border-radius: 50%; /* Ensure they are circles */
+  z-index: -1; /* Place behind the text */
+}
+
+/* Larger circle on the left */
+.floating-cloud::before {
+  @apply -left-5 -top-3 h-10 w-10; /* Larger, positioned more to the left and up */
+}
+
+/* Smaller circle overlapping on the right */
+.floating-cloud::after {
+  @apply -right-5 -top-2 h-8 w-8; /* Smaller, positioned more to the right */
+}
+
+/* Optional: Add a third smaller circle for more puffiness */
+/* You might need another pseudo-element or a different approach if ::marker is used */
+/* For simplicity, sticking to two for now */
+
+
+@keyframes float {
+  0% {
+    transform: translatey(0px);
+  }
+  50% {
+    transform: translatey(-8px); /* Adjust vertical float distance */
+  }
+  100% {
+    transform: translatey(0px);
+  }
+}
+
+
 @font-face {
   font-family: "Aeonik";
   src: url("/Aeonik/Aeonik-Regular.ttf");
