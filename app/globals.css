@@ -30,21 +30,28 @@
   animation: float 6s ease-in-out infinite;
 }
 
-/* Add cloud shapes using pseudo-elements */
+/* Add cloud shapes using pseudo-elements - Refined */
 .floating-cloud::before,
 .floating-cloud::after {
   content: '';
-  @apply absolute rounded-full bg-gradient-to-br from-blue-200 via-blue-100 to-blue-200 dark:from-slate-600 dark:via-slate-700 dark:to-slate-600;
+  @apply absolute block bg-gradient-to-br from-blue-200 via-blue-100 to-blue-200 dark:from-slate-600 dark:via-slate-700 dark:to-slate-600;
+  border-radius: 50%; /* Ensure they are circles */
   z-index: -1; /* Place behind the text */
 }
 
+/* Larger circle on the left */
 .floating-cloud::before {
-  @apply -left-3 -top-2 h-8 w-8; /* Adjust size and position */
+  @apply -left-5 -top-3 h-10 w-10; /* Larger, positioned more to the left and up */
 }
 
+/* Smaller circle overlapping on the right */
 .floating-cloud::after {
-  @apply -right-4 -top-1 h-10 w-10; /* Adjust size and position */
+  @apply -right-5 -top-2 h-8 w-8; /* Smaller, positioned more to the right */
 }
+
+/* Optional: Add a third smaller circle for more puffiness */
+/* You might need another pseudo-element or a different approach if ::marker is used */
+/* For simplicity, sticking to two for now */
 
 
 @keyframes float {
