@@ -28,25 +28,56 @@ export async function POST(req: Request) {
   let { model, messages, shadcn } = result.data;
   let systemPrompt = getSystemPrompt(shadcn);
 
-  const geminiModel = genAI.getGenerativeModel({model: model});
+  try {
+    const geminiModel = genAI.getGenerativeModel({ model: model });
 
-  const geminiStream = await geminiModel.generateContentStream(
-    messages[0].content + systemPrompt + "\nPlease ONLY return code, NO backticks or language names. Don't start with \`\`\`typescript or \`\`\`javascript or \`\`\`tsx or \`\`\`."
-  );
+    const fullPrompt = messages[0].content + systemPrompt + "\nPlease ONLY return code, NO backticks or language names. Don't start with \`\`\`typescript or \`\`\`javascript or \`\`\`tsx or \`\`\`.";
+    console.log("Sending prompt to Gemini:", fullPrompt); // Log the prompt being sent
 
-  console.log(messages[0].content + systemPrompt + "\nPlease ONLY return code, NO backticks or language names. Don't start with \`\`\`typescript or \`\`\`javascript or \`\`\`tsx or \`\`\`.")
+    const geminiStream = await geminiModel.generateContentStream(fullPrompt);
 
-  const readableStream = new ReadableStream({
-    async start(controller) {
-      for await (const chunk of geminiStream.stream) {
-        const chunkText = chunk.text();
-        controller.enqueue(new TextEncoder().encode(chunkText));
+    const readableStream = new ReadableStream({
+      async start(controller) {
+        try {
+          for await (const chunk of geminiStream.stream) {
+            const chunkText = chunk.text();
+            controller.enqueue(new TextEncoder().encode(chunkText));
+          }
+          controller.close();
+        } catch (streamError: any) { // Catch potential errors during stream processing
+          console.error("Error reading stream:", streamError);
+          // Try to send an error message back through the stream if possible
+          try {
+             controller.enqueue(new TextEncoder().encode(`\n// Stream Error: ${streamError.message || 'Unknown stream error'}\n`));
+          } catch (enqueueError) {
+             console.error("Failed to enqueue stream error message:", enqueueError);
+          }
+          controller.error(streamError); // Signal stream error
+        }
+      },
+      cancel(reason) {
+        console.log("Stream cancelled:", reason);
+        // Optional: Add any stream cancellation logic here if needed
       }
-      controller.close();
-    },
-  });
+    });
 
-  return new Response(readableStream);
+    return new Response(readableStream, {
+      headers: { "Content-Type": "text/plain; charset=utf-8" }, // Ensure correct content type for streaming text
+    });
+  } catch (error: any) {
+    console.error("Error calling Google AI API:", error);
+    // Return a more informative error response
+    return new Response(
+      JSON.stringify({
+        error: "Failed to generate code due to a server error.",
+        details: error.message || "Unknown error",
+      }),
+      {
+        status: 500,
+        headers: { "Content-Type": "application/json" },
+      },
+    );
+  }
 }
 
 function getSystemPrompt(shadcn: boolean) {

@@ -1,6 +1,7 @@
 "use client";
 
 import * as shadcnComponents from "@/utils/shadcn";
+import { useMemo } from "react"; // Import useMemo
 import { Sandpack } from "@codesandbox/sandpack-react";
 import {
   SandpackPreview,
@@ -17,6 +18,15 @@ export default function CodeViewer({
   code: string;
   showEditor?: boolean;
 }) {
+  // Memoize the files object
+  const sandpackFiles = useMemo(
+    () => ({
+      "App.tsx": code,
+      ...sharedFiles,
+    }),
+    [code],
+  ); // Dependency is the code prop
+
   return showEditor ? (
     <Sandpack
       options={{
@@ -25,18 +35,12 @@ export default function CodeViewer({
         showTabs: false,
         ...sharedOptions,
       }}
-      files={{
-        "App.tsx": code,
-        ...sharedFiles,
-      }}
+      files={sandpackFiles} // Use memoized files
       {...sharedProps}
     />
   ) : (
     <SandpackProvider
-      files={{
-        "App.tsx": code,
-        ...sharedFiles,
-      }}
+      files={sandpackFiles} // Use memoized files
       className="flex h-full w-full grow flex-col justify-center"
       options={{ ...sharedOptions }}
       {...sharedProps}

@@ -74,18 +74,32 @@ export default function Home() {
     });
 
     if (!res.ok) {
-      // Consider adding user-facing error handling here
       setStatus("initial"); // Reset status on error
-      setGeneratedCode(`// Error: ${res.statusText}`);
-      console.error(res.statusText);
+      let errorDetails = `HTTP error! status: ${res.status}`;
+      try {
+        // Try to parse the JSON error response from the backend
+        const errorJson = await res.json();
+        errorDetails = `Error: ${errorJson.error}\nDetails: ${errorJson.details}`;
+        console.error("Backend Error:", errorJson);
+      } catch (jsonError) {
+        // If JSON parsing fails, try to get the raw text response
+        try {
+          const errorText = await res.text();
+          errorDetails = `Error: ${res.statusText}\nResponse: ${errorText}`;
+          console.error("Backend Error Text:", errorText);
+        } catch (textError) {
+          console.error("Failed to read error response body:", textError);
+        }
+      }
+      setGeneratedCode(`// ${errorDetails}`);
       return; // Stop execution on error
     }
 
     if (!res.body) {
-      // Consider adding user-facing error handling here
       setStatus("initial"); // Reset status on error
-      setGeneratedCode(`// Error: No response body`);
-      console.error("No response body");
+      const errorMsg = "// Error: No response body received from the server.";
+      setGeneratedCode(errorMsg);
+      console.error(errorMsg);
       return; // Stop execution
     }
 
