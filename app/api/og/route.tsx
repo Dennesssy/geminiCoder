@@ -1,5 +1,7 @@
 import { ImageResponse } from "next/og";
 import { domain } from "@/utils/domain";
+
+export const runtime = 'edge';
 export async function GET(request: Request) {
   const { searchParams } = new URL(request.url);
   const prompt = searchParams.get("prompt");

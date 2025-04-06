@@ -4,6 +4,8 @@ import client from "@/lib/prisma";
 import type { Metadata } from "next";
 import { cache } from "react";
 
+export const runtime = 'edge';
+
 export async function generateMetadata({
   params,
 }: {
