@@ -24,7 +24,7 @@ export default function Home() {
   let models = [
     {
       label: "Daily Alpha Code", // Renamed
-      value: "dailypnp-2.0-flash-exp",
+      value: "gemini-2.5-pro-preview-03-25", // Updated model ID
     },
     // { // Removed 1.5-pro
     //   label: "dailypnp-1.5-pro",
@@ -32,7 +32,7 @@ export default function Home() {
     // },
     {
       label: "Daily Beta Coder", // Renamed
-      value: "dailypnp-1.5-flash",
+      value: "gemini-2.0-flash-lite", // Updated model ID
     }
   ];
   let [model, setModel] = useState(models[0].value); // Default to first model

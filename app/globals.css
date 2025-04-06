@@ -13,9 +13,10 @@
 
 /* Animated Gradient Text Styles */
 .animated-gradient-text {
-  @apply bg-gradient-to-r from-pink-500 via-red-500 to-yellow-500 bg-clip-text text-transparent;
-  background-size: 200% auto;
-  animation: gradient-animation 3s linear infinite;
+  /* Apply rainbow gradient */
+  @apply bg-gradient-to-r from-red-500 via-orange-400 via-yellow-400 via-lime-400 via-cyan-400 via-blue-500 to-purple-600 bg-clip-text text-transparent;
+  background-size: 300% auto; /* Increase size for smoother rainbow transition */
+  animation: gradient-animation 5s linear infinite; /* Slightly slower animation */
 }
 
 @keyframes gradient-animation {

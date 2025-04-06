@@ -1,10 +1,15 @@
+"use client";
+
 import Link from "next/link";
-import { AnimatePresence, motion } from "framer-motion"; // Added for animation
+import { AnimatePresence, motion } from "framer-motion";
+import { useState } from "react"; // Import useState
 
 export default function Footer() {
-  // Placeholder for tip jar click handler - replace with actual logic if needed
+  const [showPartyText, setShowPartyText] = useState(false); // State for text visibility
+
   const handleTipJarClick = () => {
     console.log("Tip Jar clicked!");
+    setShowPartyText(true); // Show text on click
     // Example: window.open('your-tip-jar-link', '_blank');
   };
 
@@ -45,7 +50,7 @@ export default function Footer() {
 
       {/* Animated Text Section - Absolutely positioned */}
       <AnimatePresence>
-        {true && ( // Assuming this should always be visible when the footer is rendered
+        {showPartyText && ( // Conditionally render based on state
           <motion.div
             initial={{ opacity: 0, y: 20 }}
             animate={{ opacity: 1, y: 0 }}
